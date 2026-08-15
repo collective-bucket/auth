@@ -33,7 +33,7 @@ function respond(event, payload) {
       requestId: event.data.requestId,
       ...payload
     },
-    { targetOrigin: event.origin }
+    event.origin
   );
 }
 
