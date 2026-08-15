@@ -6,6 +6,7 @@
   "scripts": {
     "serve": "firebase emulators:start --only hosting",
     "deploy": "firebase deploy --only hosting:auth",
+    "stamp": "node scripts/stamp-assets.js",
     "check": "node --check public/client.js && node --check public/assets/auth.js && node --check public/assets/session-bridge.js"
   },
   "devDependencies": {
