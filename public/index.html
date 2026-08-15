@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Giriş | Collective Bucket</title>
+  <meta name="description" content="Collective Bucket projeleri için merkezi giriş ve hesap oluşturma sayfası." />
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap">
+      <a class="brand" href="https://collectivebucket.com">
+        <img src="assets/logo.svg" alt="" />
+        <span>Collective Bucket</span>
+      </a>
+      <a class="btn btn-ghost" href="https://collectivebucket.com">Ana site</a>
+    </div>
+  </header>
+
+  <main class="auth-main">
+    <section class="auth-card" aria-labelledby="auth-title">
+      <div class="auth-heading">
+        <img src="assets/logo.svg" alt="" />
+        <div>
+          <p class="eyebrow">Collective Bucket hesabı</p>
+          <h1 id="auth-title">Giriş yap veya hesap oluştur</h1>
+        </div>
+      </div>
+
+      <p class="intro">
+        Bu oturum Collective Bucket altındaki projelerde ortak kullanılır.
+      </p>
+
+      <div id="form-panel">
+        <form id="auth-form">
+          <label for="email">E-posta</label>
+          <input id="email" name="email" type="email" autocomplete="email" required />
+
+          <label for="password">Şifre</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" minlength="6" required />
+
+          <div class="actions">
+            <button id="sign-in" class="btn btn-primary" type="submit">Giriş Yap</button>
+            <button id="sign-up" class="btn btn-ghost" type="button">Hesap Oluştur</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="account-panel" class="account-panel" hidden>
+        <p>Oturum açık:</p>
+        <strong id="account-email"></strong>
+        <button id="sign-out" class="btn btn-ghost" type="button">Çıkış Yap</button>
+      </div>
+
+      <p id="message" class="message" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer>
+    <a href="https://collectivebucket.com">collectivebucket.com</a>
+    <span aria-hidden="true">·</span>
+    <a href="https://github.com/collective-bucket/auth">Kaynak kodu</a>
+  </footer>
+
+  <script type="module" src="assets/auth.js"></script>
+</body>
+</html>

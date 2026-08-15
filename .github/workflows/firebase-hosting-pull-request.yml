@@ -1,0 +1,39 @@
+name: Deploy Firebase preview
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  preview:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - id: deploy
+        run: |
+          npx firebase-tools hosting:channel:deploy "pr-${{ github.event.pull_request.number }}" \
+            --only hosting:auth \
+            --expires 7d \
+            --token "${{ secrets.FIREBASE_TOKEN }}" \
+            --non-interactive \
+            --json > preview.json
+          echo "url=$(node -e 'const r=require("./preview.json"); console.log(r.result.auth.url)')" >> "$GITHUB_OUTPUT"
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Firebase önizleme: ${{ steps.deploy.outputs.url }}`
+            })

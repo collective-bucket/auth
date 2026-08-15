@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "collective-bucket"
+  },
+  "targets": {
+    "collective-bucket": {
+      "hosting": {
+        "auth": [
+          "cbucket-auth"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
