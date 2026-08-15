@@ -46,6 +46,8 @@ function allowedReturnUrl(value) {
 const params = new URLSearchParams(location.search);
 const requestedReturnUrl = params.get("returnTo");
 const returnUrl = allowedReturnUrl(requestedReturnUrl);
+const signOutRequested = params.get("signOut") === "1";
+let redirecting = false;
 
 if (requestedReturnUrl && !returnUrl) {
   showMessage("Güvenli olmayan dönüş adresi reddedildi.", "error");
@@ -64,10 +66,35 @@ function setBusy(busy) {
   signOutButton.disabled = busy;
 }
 
-function redirectBack() {
-  if (!returnUrl) return false;
+async function redirectBack() {
+  if (!returnUrl || redirecting) return false;
+  redirecting = true;
   showMessage("Oturum açıldı. Uygulamaya dönülüyor…", "success");
-  window.setTimeout(() => location.replace(returnUrl), 300);
+
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      window.setTimeout(() => location.replace(returnUrl), 300);
+      return true;
+    }
+
+    const tokenResult = await user.getIdTokenResult();
+    const target = new URL(returnUrl);
+    const hash = new URLSearchParams({
+      cb_token: tokenResult.token,
+      cb_uid: user.uid,
+      cb_email: user.email || "",
+      cb_verified: user.emailVerified ? "1" : "0",
+      cb_exp: tokenResult.expirationTime
+    });
+    target.hash = hash.toString();
+    window.setTimeout(() => location.replace(target.href), 300);
+  } catch {
+    redirecting = false;
+    showMessage("Oturum bilgisi alınamadı. Lütfen tekrar deneyin.", "error");
+    return false;
+  }
+
   return true;
 }
 
@@ -129,5 +156,24 @@ onAuthStateChanged(auth, (user) => {
   accountPanel.hidden = !user;
   accountEmail.textContent = user?.email || "";
 
+  if (signOutRequested) return;
   if (user) redirectBack();
 });
+
+if (signOutRequested) {
+  setBusy(true);
+  showMessage("Oturum kapatılıyor…");
+  signOut(auth)
+    .then(() => {
+      showMessage("Oturum kapatıldı.", "success");
+      if (returnUrl) {
+        window.setTimeout(() => location.replace(returnUrl), 300);
+      }
+    })
+    .catch(() => {
+      showMessage("Oturum kapatılamadı. Lütfen tekrar deneyin.", "error");
+    })
+    .finally(() => {
+      setBusy(false);
+    });
+}
