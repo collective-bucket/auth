@@ -8,7 +8,6 @@ import {
   sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
-  signInWithPopup,
   signInWithRedirect,
   signOut
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
@@ -54,6 +53,11 @@ const requestedReturnUrl = params.get("returnTo");
 const returnUrl = allowedReturnUrl(requestedReturnUrl);
 const signOutRequested = params.get("signOut") === "1";
 let redirecting = false;
+
+function hidePanelsForTransition() {
+  formPanel.hidden = true;
+  accountPanel.hidden = true;
+}
 
 if (requestedReturnUrl && !returnUrl) {
   showMessage("Güvenli olmayan dönüş adresi reddedildi.", "error");
@@ -112,38 +116,32 @@ function friendlyError(error) {
     "auth/invalid-credential": "E-posta veya şifre hatalı.",
     "auth/invalid-email": "Geçerli bir e-posta adresi girin.",
     "auth/missing-password": "Şifrenizi girin.",
-    "auth/popup-closed-by-user": "Google giriş penceresi kapatıldı.",
-    "auth/popup-blocked": "Google giriş penceresi engellendi.",
+    "auth/network-request-failed": "Ağ bağlantısı kurulamadı. Lütfen tekrar deneyin.",
+    "auth/operation-not-allowed": "Bu giriş yöntemi şu anda etkin değil.",
     "auth/too-many-requests": "Çok fazla deneme yapıldı. Lütfen daha sonra tekrar deneyin.",
+    "auth/unauthorized-domain": "Bu alan adı Google girişi için yetkili değil.",
     "auth/user-not-found": "Bu e-posta için kayıtlı bir hesap bulunamadı.",
     "auth/weak-password": "Şifre en az 6 karakter olmalı."
   };
 
-  return messages[error?.code] || "İşlem tamamlanamadı. Lütfen tekrar deneyin.";
+  if (messages[error?.code]) return messages[error.code];
+  if (error?.code) return "İşlem tamamlanamadı (" + error.code + ").";
+  return "İşlem tamamlanamadı. Lütfen tekrar deneyin.";
 }
 
 async function authenticateWithGoogle() {
   setBusy(true);
-  showMessage("Google ile giriş açılıyor…");
+  showMessage("Google hesabına yönlendiriliyor…");
 
   try {
     await setPersistence(auth, browserLocalPersistence);
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
-
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (error) {
-      if (error?.code === "auth/popup-blocked") {
-        await signInWithRedirect(auth, provider);
-        return;
-      }
-      throw error;
-    }
-
-    redirectBack();
+    hidePanelsForTransition();
+    await signInWithRedirect(auth, provider);
   } catch (error) {
     showMessage(friendlyError(error), "error");
+    formPanel.hidden = false;
   } finally {
     setBusy(false);
   }
@@ -161,7 +159,10 @@ async function resetPassword() {
   showMessage("Şifre sıfırlama bağlantısı gönderiliyor…");
 
   try {
-    await sendPasswordResetEmail(auth, email);
+    await sendPasswordResetEmail(auth, email, {
+      url: location.origin + "/",
+      handleCodeInApp: false
+    });
     showMessage("Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.", "success");
   } catch (error) {
     showMessage(friendlyError(error), "error");
@@ -219,20 +220,25 @@ signOutButton.addEventListener("click", async () => {
 });
 
 onAuthStateChanged(auth, (user) => {
+  if (signOutRequested) {
+    hidePanelsForTransition();
+    return;
+  }
+
   formPanel.hidden = Boolean(user);
   accountPanel.hidden = !user;
   accountEmail.textContent = user?.email || "";
 
-  if (signOutRequested) return;
   if (user) redirectBack();
 });
 
 if (signOutRequested) {
+  hidePanelsForTransition();
   setBusy(true);
-  showMessage("Oturum kapatılıyor…");
+  showMessage("Oturum kapatılıyor. Yönlendiriliyorsunuz…");
   signOut(auth)
     .then(() => {
-      showMessage("Oturum kapatıldı.", "success");
+      showMessage("Oturum kapatıldı. Yönlendiriliyorsunuz…", "success");
       if (returnUrl) {
         window.setTimeout(() => location.replace(returnUrl), 300);
       }
