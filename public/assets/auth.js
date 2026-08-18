@@ -1,11 +1,15 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 import {
+  GoogleAuthProvider,
   browserLocalPersistence,
   createUserWithEmailAndPassword,
   getAuth,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
+  signInWithPopup,
+  signInWithRedirect,
   signOut
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 import { firebaseConfig } from "./firebase-config.js";
@@ -18,6 +22,8 @@ const emailInput = document.querySelector("#email");
 const passwordInput = document.querySelector("#password");
 const signInButton = document.querySelector("#sign-in");
 const signUpButton = document.querySelector("#sign-up");
+const googleSignInButton = document.querySelector("#google-sign-in");
+const forgotPasswordButton = document.querySelector("#forgot-password");
 const signOutButton = document.querySelector("#sign-out");
 const formPanel = document.querySelector("#form-panel");
 const accountPanel = document.querySelector("#account-panel");
@@ -63,6 +69,8 @@ function setBusy(busy) {
   passwordInput.disabled = busy;
   signInButton.disabled = busy;
   signUpButton.disabled = busy;
+  googleSignInButton.disabled = busy;
+  forgotPasswordButton.disabled = busy;
   signOutButton.disabled = busy;
 }
 
@@ -104,11 +112,62 @@ function friendlyError(error) {
     "auth/invalid-credential": "E-posta veya şifre hatalı.",
     "auth/invalid-email": "Geçerli bir e-posta adresi girin.",
     "auth/missing-password": "Şifrenizi girin.",
+    "auth/popup-closed-by-user": "Google giriş penceresi kapatıldı.",
+    "auth/popup-blocked": "Google giriş penceresi engellendi.",
     "auth/too-many-requests": "Çok fazla deneme yapıldı. Lütfen daha sonra tekrar deneyin.",
+    "auth/user-not-found": "Bu e-posta için kayıtlı bir hesap bulunamadı.",
     "auth/weak-password": "Şifre en az 6 karakter olmalı."
   };
 
   return messages[error?.code] || "İşlem tamamlanamadı. Lütfen tekrar deneyin.";
+}
+
+async function authenticateWithGoogle() {
+  setBusy(true);
+  showMessage("Google ile giriş açılıyor…");
+
+  try {
+    await setPersistence(auth, browserLocalPersistence);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      if (error?.code === "auth/popup-blocked") {
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+      throw error;
+    }
+
+    redirectBack();
+  } catch (error) {
+    showMessage(friendlyError(error), "error");
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function resetPassword() {
+  var email = emailInput.value.trim();
+  if (!email) {
+    showMessage("Şifre sıfırlama için önce e-posta adresinizi girin.", "error");
+    emailInput.focus();
+    return;
+  }
+
+  setBusy(true);
+  showMessage("Şifre sıfırlama bağlantısı gönderiliyor…");
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    showMessage("Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.", "success");
+  } catch (error) {
+    showMessage(friendlyError(error), "error");
+  } finally {
+    setBusy(false);
+  }
 }
 
 async function authenticate(action) {
@@ -135,6 +194,14 @@ form.addEventListener("submit", (event) => {
 
 signUpButton.addEventListener("click", () => {
   authenticate(createUserWithEmailAndPassword);
+});
+
+googleSignInButton.addEventListener("click", () => {
+  authenticateWithGoogle();
+});
+
+forgotPasswordButton.addEventListener("click", () => {
+  resetPassword();
 });
 
 signOutButton.addEventListener("click", async () => {

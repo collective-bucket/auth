@@ -20,7 +20,11 @@ files.forEach(function (file) {
   var html = fs.readFileSync(filePath, "utf8");
   var next = html
     .replace(/(assets\/[^"'?\s]+)\?v=[^"'&\s]*/g, "$1?v=" + version)
-    .replace(/(assets\/[^"'?\s]+)(?=["'])/g, "$1?v=" + version);
+    .replace(/(assets\/[^"'?\s]+)(?=["'])/g, "$1?v=" + version)
+    .replace(/(client\.js)\?v=[^"'&\s]*/g, "$1?v=" + version)
+    .replace(/(client\.js)(?=["'])/g, "$1?v=" + version)
+    .replace(/(https:\/\/collectivebucket\.com\/assets\/shell\.(?:css|js))\?v=[^"'&\s]*/g, "$1?v=" + version)
+    .replace(/(https:\/\/collectivebucket\.com\/assets\/shell\.(?:css|js))(?=["'])/g, "$1?v=" + version);
   fs.writeFileSync(filePath, next);
   console.log("stamped " + file + " -> v=" + version);
 });

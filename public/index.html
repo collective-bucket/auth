@@ -9,18 +9,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://collectivebucket.com/assets/shell.css" />
   <link rel="stylesheet" href="assets/styles.css" />
 </head>
 <body>
-  <header class="nav">
-    <div class="wrap">
-      <a class="brand" href="https://collectivebucket.com">
-        <img src="assets/logo.svg" alt="" />
-        <span>Collective Bucket</span>
-      </a>
-      <a class="btn btn-ghost" href="https://collectivebucket.com">Ana site</a>
-    </div>
-  </header>
+  <header data-cb-shell="header" data-cb-shell-app="Üye Girişi" data-cb-shell-home="/"></header>
 
   <main class="auth-main">
     <section class="auth-card" aria-labelledby="auth-title">
@@ -43,11 +36,19 @@
 
           <label for="password">Şifre</label>
           <input id="password" name="password" type="password" autocomplete="current-password" minlength="6" required />
+          <div class="inline-actions">
+            <button id="forgot-password" class="text-button" type="button">Şifremi unuttum</button>
+          </div>
 
           <div class="actions">
             <button id="sign-in" class="btn btn-primary" type="submit">Giriş Yap</button>
             <button id="sign-up" class="btn btn-ghost" type="button">Hesap Oluştur</button>
           </div>
+          <div class="divider" aria-hidden="true"><span>veya</span></div>
+          <button id="google-sign-in" class="btn btn-ghost btn-google" type="button">
+            <span class="google-mark" aria-hidden="true">G</span>
+            <span>Google ile devam et</span>
+          </button>
         </form>
       </div>
 
@@ -61,12 +62,10 @@
     </section>
   </main>
 
-  <footer>
-    <a href="https://collectivebucket.com">collectivebucket.com</a>
-    <span aria-hidden="true">·</span>
-    <a href="https://github.com/collective-bucket/auth">Kaynak kodu</a>
-  </footer>
+  <footer data-cb-shell="footer"></footer>
 
+  <script src="/client.js" defer></script>
+  <script src="https://collectivebucket.com/assets/shell.js" defer></script>
   <script type="module" src="assets/auth.js"></script>
 </body>
 </html>
