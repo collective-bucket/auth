@@ -219,7 +219,7 @@
       var signInLink = document.createElement("a");
       signInLink.className = "btn btn-ghost";
       signInLink.href = authUrl();
-      signInLink.textContent = "Giriş Yap";
+      signInLink.textContent = "Üye Girişi";
       container.appendChild(signInLink);
     });
   }
