@@ -18,11 +18,14 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-      - uses: google-github-actions/auth@v2
+      - id: auth
+        uses: google-github-actions/auth@v2
         with:
           project_id: collective-bucket
           workload_identity_provider: projects/239510573325/locations/global/workloadIdentityPools/github-actions/providers/github-provider
+          service_account: github-actions-deployer@collective-bucket.iam.gserviceaccount.com
+          token_format: access_token
       - run: npm ci
       - run: npm run check
       - run: npm run stamp
-      - run: npx firebase-tools deploy --only hosting:auth --non-interactive
+      - run: npx firebase-tools deploy --only hosting:auth --token "${{ steps.auth.outputs.access_token }}" --non-interactive
