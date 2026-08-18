@@ -266,6 +266,12 @@ input:focus {
   margin-top: 12px;
 }
 
+#form-panel[hidden],
+.account-panel[hidden],
+.account-actions[hidden] {
+  display: none !important;
+}
+
 .message {
   min-height: 22px;
   margin: 18px 0 0;
