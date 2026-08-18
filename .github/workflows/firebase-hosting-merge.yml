@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   deploy:
@@ -17,7 +18,11 @@ jobs:
         with:
           node-version: "22"
           cache: npm
+      - uses: google-github-actions/auth@v2
+        with:
+          project_id: collective-bucket
+          workload_identity_provider: projects/239510573325/locations/global/workloadIdentityPools/github-actions/providers/github-provider
       - run: npm ci
       - run: npm run check
       - run: npm run stamp
-      - run: npx firebase-tools deploy --only hosting:auth --token "${{ secrets.FIREBASE_TOKEN }}" --non-interactive
+      - run: npx firebase-tools deploy --only hosting:auth --non-interactive
