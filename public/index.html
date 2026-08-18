@@ -8,6 +8,7 @@
   <script>
     (function () {
       try {
+        document.documentElement.setAttribute("data-cb-auth-pending", "1");
         var signOutRequested = new URLSearchParams(window.location.search).get("signOut") === "1";
         if (signOutRequested) {
           document.documentElement.setAttribute("data-cb-signout", "1");
@@ -65,7 +66,9 @@
       <div id="account-panel" class="account-panel" hidden>
         <p>Oturum açık:</p>
         <strong id="account-email"></strong>
-        <button id="sign-out" class="btn btn-ghost" type="button">Çıkış Yap</button>
+      </div>
+      <div id="account-actions" class="account-actions" hidden>
+        <button id="sign-out" class="btn btn-danger" type="button">Çıkış Yap</button>
       </div>
 
       <p id="message" class="message" role="status" aria-live="polite"></p>

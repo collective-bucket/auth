@@ -85,6 +85,18 @@ a:hover {
   color: var(--text);
 }
 
+.btn-danger {
+  border-color: #efc4c4;
+  background: transparent;
+  color: var(--danger);
+}
+
+.btn-danger:hover {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
 .auth-main {
   flex: 1;
   display: grid;
@@ -248,6 +260,12 @@ input:focus {
   overflow-wrap: anywhere;
 }
 
+.account-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
 .message {
   min-height: 22px;
   margin: 18px 0 0;
@@ -273,6 +291,12 @@ input:focus {
 
 html[data-cb-signout="1"] #form-panel,
 html[data-cb-signout="1"] #account-panel {
+  display: none;
+}
+
+html[data-cb-auth-pending="1"] #form-panel,
+html[data-cb-auth-pending="1"] #account-panel,
+html[data-cb-auth-pending="1"] #account-actions {
   display: none;
 }
 

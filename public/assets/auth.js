@@ -26,8 +26,13 @@ const forgotPasswordButton = document.querySelector("#forgot-password");
 const signOutButton = document.querySelector("#sign-out");
 const formPanel = document.querySelector("#form-panel");
 const accountPanel = document.querySelector("#account-panel");
+const accountActions = document.querySelector("#account-actions");
 const accountEmail = document.querySelector("#account-email");
 const message = document.querySelector("#message");
+
+function setUiReady() {
+  document.documentElement.removeAttribute("data-cb-auth-pending");
+}
 
 function allowedReturnUrl(value) {
   if (!value) return null;
@@ -57,6 +62,7 @@ let redirecting = false;
 function hidePanelsForTransition() {
   formPanel.hidden = true;
   accountPanel.hidden = true;
+  accountActions.hidden = true;
 }
 
 if (requestedReturnUrl && !returnUrl) {
@@ -142,6 +148,7 @@ async function authenticateWithGoogle() {
   } catch (error) {
     showMessage(friendlyError(error), "error");
     formPanel.hidden = false;
+    accountActions.hidden = true;
   } finally {
     setBusy(false);
   }
@@ -220,6 +227,8 @@ signOutButton.addEventListener("click", async () => {
 });
 
 onAuthStateChanged(auth, (user) => {
+  setUiReady();
+
   if (signOutRequested) {
     hidePanelsForTransition();
     return;
@@ -227,6 +236,7 @@ onAuthStateChanged(auth, (user) => {
 
   formPanel.hidden = Boolean(user);
   accountPanel.hidden = !user;
+  accountActions.hidden = !user;
   accountEmail.textContent = user?.email || "";
 
   if (user) redirectBack();
