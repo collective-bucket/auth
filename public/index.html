@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Giriş | Collective Bucket</title>
   <meta name="description" content="Collective Bucket projeleri için merkezi giriş ve hesap oluşturma sayfası." />
+  <script>
+    (function () {
+      try {
+        var signOutRequested = new URLSearchParams(window.location.search).get("signOut") === "1";
+        if (signOutRequested) {
+          document.documentElement.setAttribute("data-cb-signout", "1");
+        }
+      } catch {}
+    })();
+  </script>
   <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

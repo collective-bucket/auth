@@ -112,8 +112,9 @@ a:hover {
 }
 
 .auth-heading img {
-  width: 46px;
-  height: 46px;
+  width: 64px;
+  height: 64px;
+  flex: 0 0 auto;
 }
 
 .eyebrow {
@@ -130,7 +131,6 @@ h1 {
   font-size: clamp(18px, 4.3vw, 28px);
   line-height: 1.2;
   letter-spacing: -0.02em;
-  white-space: nowrap;
 }
 
 .intro {
@@ -271,6 +271,11 @@ input:focus {
   color: var(--accent-strong);
 }
 
+html[data-cb-signout="1"] #form-panel,
+html[data-cb-signout="1"] #account-panel {
+  display: none;
+}
+
 @media (max-width: 520px) {
   .wrap {
     width: min(100% - 32px, 880px);
@@ -288,11 +293,12 @@ input:focus {
     align-items: flex-start;
   }
 
-  .actions {
-    flex-direction: column;
+  .auth-heading img {
+    width: 56px;
+    height: 56px;
   }
 
-  h1 {
-    font-size: 18px;
+  .actions {
+    flex-direction: column;
   }
 }
