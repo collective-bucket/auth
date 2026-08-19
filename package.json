@@ -2,7 +2,7 @@
   "name": "collective-bucket-auth",
   "version": "1.0.0",
   "private": true,
-  "description": "Collective Bucket merkezi kimlik doğrulama ve SSO uygulaması.",
+  "description": "Collective Bucket — merkezi giriş ve tek oturum (SSO).",
   "scripts": {
     "serve": "firebase emulators:start --only hosting",
     "deploy": "firebase deploy --only hosting:auth",
