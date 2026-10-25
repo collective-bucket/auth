@@ -30,7 +30,7 @@ jobs:
       - id: deploy
         run: |
           npx firebase-tools hosting:channel:deploy "pr-${{ github.event.pull_request.number }}" \
-            --only hosting:auth \
+            --only auth \
             --expires 7d \
             --token "${{ steps.auth.outputs.access_token }}" \
             --non-interactive \
