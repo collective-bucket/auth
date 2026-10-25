@@ -10,6 +10,30 @@
   var iframeReady;
   var requestNumber = 0;
   var currentSession = null;
+  var STRINGS = {
+    en: {
+      bridge: "Collective Bucket session bridge",
+      unreachable: "Could not reach the session service.",
+      timeout: "The session request timed out.",
+      signedIn: "Signed in",
+      signOut: "Sign out",
+      signIn: "Sign in"
+    },
+    tr: {
+      bridge: "Collective Bucket oturum köprüsü",
+      unreachable: "Oturum servisine ulaşılamadı.",
+      timeout: "Oturum isteği zaman aşımına uğradı.",
+      signedIn: "Oturum açık",
+      signOut: "Çıkış",
+      signIn: "Üye Girişi"
+    }
+  };
+
+  // Copy follows the host page's <html lang>: tr → Turkish, otherwise English.
+  function t(key) {
+    var lang = /^tr\b/i.test(document.documentElement.lang || "") ? "tr" : "en";
+    return STRINGS[lang][key];
+  }
 
   function authUrl(returnTo, extra) {
     var url = new URL("/", AUTH_ORIGIN);
@@ -94,14 +118,14 @@
 
     iframe = document.createElement("iframe");
     iframe.src = new URL("/session", AUTH_ORIGIN).href;
-    iframe.title = "Collective Bucket oturum köprüsü";
+    iframe.title = t("bridge");
     iframe.hidden = true;
     iframe.setAttribute("aria-hidden", "true");
     iframe.setAttribute("tabindex", "-1");
 
     iframeReady = new Promise(function (resolve, reject) {
       var timeout = window.setTimeout(function () {
-        reject(new Error("Oturum servisine ulaşılamadı."));
+        reject(new Error(t("unreachable")));
       }, 10000);
 
       iframe.addEventListener("load", function () {
@@ -121,7 +145,7 @@
       var requestId = "cb-auth-" + Date.now() + "-" + (++requestNumber);
       var timeout = window.setTimeout(function () {
         requests.delete(requestId);
-        reject(new Error("Oturum isteği zaman aşımına uğradı."));
+        reject(new Error(t("timeout")));
       }, 10000);
 
       requests.set(requestId, {
@@ -163,7 +187,7 @@
         return currentSession;
       }
     } catch {
-      // iOS'ta üçüncü taraf iframe depolaması boş olabilir; cache'e düş.
+      // Third-party iframe storage can be empty on iOS; fall back to the cache.
     }
 
     if (cached) {
@@ -184,7 +208,7 @@
     try {
       await request("sign-out");
     } catch {
-      // iframe sign-out iOS'ta başarısız olabilir
+      // iframe sign-out can fail on iOS
     }
     notify(null);
     window.location.assign(
@@ -199,12 +223,12 @@
       if (currentSession) {
         var email = document.createElement("span");
         email.className = "cb-auth-email";
-        email.textContent = currentSession.email || "Oturum açık";
+        email.textContent = currentSession.email || t("signedIn");
 
         var signOutButton = document.createElement("button");
         signOutButton.type = "button";
         signOutButton.className = "btn btn-ghost";
-        signOutButton.textContent = "Çıkış";
+        signOutButton.textContent = t("signOut");
         signOutButton.addEventListener("click", function () {
           signOutButton.disabled = true;
           logout().catch(function () {
@@ -219,7 +243,7 @@
       var signInLink = document.createElement("a");
       signInLink.className = "btn btn-ghost";
       signInLink.href = authUrl();
-      signInLink.textContent = "Üye Girişi";
+      signInLink.textContent = t("signIn");
       container.appendChild(signInLink);
     });
   }
