@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
   pull-requests: write
 
 jobs:
@@ -17,6 +18,13 @@ jobs:
         with:
           node-version: "22"
           cache: npm
+      - id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: collective-bucket
+          workload_identity_provider: projects/239510573325/locations/global/workloadIdentityPools/github-actions/providers/github-provider
+          service_account: github-actions-deployer@collective-bucket.iam.gserviceaccount.com
+          token_format: access_token
       - run: npm ci
       - run: npm run check
       - id: deploy
@@ -24,7 +32,7 @@ jobs:
           npx firebase-tools hosting:channel:deploy "pr-${{ github.event.pull_request.number }}" \
             --only hosting:auth \
             --expires 7d \
-            --token "${{ secrets.FIREBASE_TOKEN }}" \
+            --token "${{ steps.auth.outputs.access_token }}" \
             --non-interactive \
             --json > preview.json
           echo "url=$(node -e 'const r=require("./preview.json"); console.log(r.result.auth.url)')" >> "$GITHUB_OUTPUT"
@@ -35,5 +43,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `Firebase önizleme: ${{ steps.deploy.outputs.url }}`
+              body: `Firebase preview: ${{ steps.deploy.outputs.url }}`
             })
